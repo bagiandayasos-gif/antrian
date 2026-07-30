@@ -35,11 +35,9 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "installerLanguages": [
-        "id_ID",
-        "en_US"
+        "id_ID"
       ],
-      "language": "1057",
-      "displayLanguageSelector": true
+      "language": "1057"
     }
   },
   "dependencies": {

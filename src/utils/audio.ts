@@ -64,15 +64,104 @@ export async function playChime(volume = 0.8): Promise<void> {
 }
 
 /**
+ * Asynchronously loads available SpeechSynthesis voices
+ */
+export function getAvailableVoices(): Promise<SpeechSynthesisVoice[]> {
+  return new Promise((resolve) => {
+    if (!('speechSynthesis' in window)) {
+      resolve([]);
+      return;
+    }
+
+    let voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      resolve(voices);
+      return;
+    }
+
+    const onVoicesChanged = () => {
+      voices = window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = null;
+      resolve(voices);
+    };
+
+    window.speechSynthesis.onvoiceschanged = onVoicesChanged;
+
+    // Fallback if event doesn't trigger within 800ms
+    setTimeout(() => {
+      resolve(window.speechSynthesis.getVoices());
+    }, 800);
+  });
+}
+
+/**
+ * Gets preferred voice name from localStorage
+ */
+export function getSavedVoiceName(): string | null {
+  try {
+    return localStorage.getItem('preferred_queue_voice');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Saves preferred voice name to localStorage
+ */
+export function saveVoiceName(name: string): void {
+  try {
+    localStorage.setItem('preferred_queue_voice', name);
+  } catch (e) {
+    console.error("Failed to save voice preference", e);
+  }
+}
+
+/**
+ * Finds the best Indonesian voice or user's selected voice
+ */
+export async function getBestIndonesianVoice(): Promise<SpeechSynthesisVoice | null> {
+  const voices = await getAvailableVoices();
+  if (!voices || voices.length === 0) return null;
+
+  const savedName = getSavedVoiceName();
+  if (savedName) {
+    const matchedSaved = voices.find(v => v.name === savedName);
+    if (matchedSaved) return matchedSaved;
+  }
+
+  // Find Indonesian voice by language tag or name
+  const idVoice = voices.find(v => {
+    const lang = (v.lang || '').toLowerCase();
+    const name = (v.name || '').toLowerCase();
+    return (
+      lang.startsWith('id') ||
+      lang.includes('id-id') ||
+      lang.includes('id_id') ||
+      name.includes('indonesia') ||
+      name.includes('indonesian') ||
+      name.includes('gadis') ||
+      name.includes('andika')
+    );
+  });
+
+  if (idVoice) return idVoice;
+
+  // Fallback to Malay voice if available
+  const msVoice = voices.find(v => (v.lang || '').toLowerCase().startsWith('ms'));
+  if (msVoice) return msVoice;
+
+  // Fallback to default voice
+  return voices.find(v => v.default) || voices[0] || null;
+}
+
+/**
  * Converts ticket number like "A-007" or "B-012" into clear Indonesian words
  */
 function formatTicketNumberForSpeech(ticketNumber: string): string {
-  // Split prefix and number
   const parts = ticketNumber.split('-');
   const prefix = parts[0] || '';
   const numStr = parts[1] || parts[0] || '';
 
-  // Spell digits clearly: 0 -> kosong, 1 -> satu, etc.
   const digitWords: Record<string, string> = {
     '0': 'kosong',
     '1': 'satu',
@@ -131,11 +220,13 @@ export async function announceTicketCall(
   utterance.pitch = options.pitch || 1.0;
   utterance.volume = options.volume || 1.0;
 
-  // Try to find Indonesian voice
-  const voices = window.speechSynthesis.getVoices();
-  const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID') || v.name.toLowerCase().includes('indonesia'));
-  if (idVoice) {
-    utterance.voice = idVoice;
+  // Find best available voice
+  const bestVoice = await getBestIndonesianVoice();
+  if (bestVoice) {
+    utterance.voice = bestVoice;
+    if (bestVoice.lang) {
+      utterance.lang = bestVoice.lang;
+    }
   }
 
   return new Promise((resolve) => {
@@ -144,3 +235,4 @@ export async function announceTicketCall(
     window.speechSynthesis.speak(utterance);
   });
 }
+

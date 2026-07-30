@@ -20,11 +20,13 @@ import {
   Share2,
   Copy,
   QrCode,
-  Trash2
+  Trash2,
+  Sliders
 } from 'lucide-react';
 import { SystemSettings } from '../types';
 import { playChime } from '../utils/audio';
 import { resetDailyQueue } from '../utils/queueStore';
+import { VoiceSettingsModal } from './VoiceSettingsModal';
 
 interface HeaderProps {
   activeTab: 'display' | 'register' | 'operator' | 'ai' | 'analytics';
@@ -45,6 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [dateStr, setDateStr] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetNotification, setResetNotification] = useState<string | null>(null);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
   
   // PWA Install state
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -184,6 +187,16 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4" />}
               <span className="hidden md:inline">{soundEnabled ? 'Suara Aktif' : 'Suara Mati'}</span>
+            </button>
+
+            {/* Voice Settings Selector Button */}
+            <button
+              onClick={() => setShowVoiceModal(true)}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5"
+              title="Pilih & Atur Suara Bahasa Indonesia (Text-to-Speech)"
+            >
+              <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden lg:inline">Pilih Suara Indo</span>
             </button>
 
             {/* Tombol Unduh / Instal Aplikasi */}
@@ -476,6 +489,12 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
       </div>
+
+      {/* Modal Pengaturan Suara Text-To-Speech */}
+      <VoiceSettingsModal
+        isOpen={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+      />
     </header>
   );
 };
