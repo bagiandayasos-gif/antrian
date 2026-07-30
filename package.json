@@ -33,7 +33,13 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "installerLanguages": [
+        "id_ID",
+        "en_US"
+      ],
+      "language": "1057",
+      "displayLanguageSelect": true
     }
   },
   "dependencies": {
