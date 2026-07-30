@@ -1,0 +1,6 @@
+{
+  "name": "Antrean Sentra Pelayanan Kito",
+  "description": "Sistem Antrean dan Pemanggilan Otomatis Dinas Sosial Kota Tanjungbalai dengan Front Office Umum & Rentan/Prioritas",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
