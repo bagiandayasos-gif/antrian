@@ -39,7 +39,7 @@
         "en_US"
       ],
       "language": "1057",
-      "displayLanguageSelect": true
+      "displayLanguageSelector": true
     }
   },
   "dependencies": {
