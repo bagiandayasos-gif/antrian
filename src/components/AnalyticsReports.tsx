@@ -11,12 +11,14 @@ import {
   Building2, 
   FileSpreadsheet,
   AlertCircle,
-  Database
+  Database,
+  Trash2
 } from 'lucide-react';
 import { QueueTicket } from '../types';
 import { 
   getInitialStoreState, 
   resetDailyQueue, 
+  deleteTicket,
   generateSampleTickets, 
   saveStateToStorage, 
   subscribeToStore 
@@ -279,6 +281,7 @@ export const AnalyticsReports: React.FC = () => {
                 <th className="py-3 px-3">Loket FO</th>
                 <th className="py-3 px-3">Waktu Daftar</th>
                 <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3 text-right no-print">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -333,12 +336,27 @@ export const AnalyticsReports: React.FC = () => {
                           {ticket.status === 'calling' ? 'Dipanggil' : ticket.status === 'completed' ? 'Selesai' : ticket.status === 'waiting' ? 'Menunggu' : 'Terlewati'}
                         </span>
                       </td>
+
+                      <td className="py-3 px-3 text-right no-print">
+                        <button
+                          onClick={() => {
+                            if (confirm(`Apakah Anda yakin ingin menghapus tiket ${ticket.ticketNumber} (${ticket.visitorName})?`)) {
+                              deleteTicket(ticket.id);
+                            }
+                          }}
+                          className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border border-rose-200 transition-all text-xs font-semibold inline-flex items-center gap-1"
+                          title="Hapus Data Tiket Ini"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Hapus</span>
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-400">
+                  <td colSpan={8} className="py-8 text-center text-slate-400">
                     Tidak ada data antrean sesuai kriteria pencarian.
                   </td>
                 </tr>

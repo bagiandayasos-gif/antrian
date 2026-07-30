@@ -375,7 +375,22 @@ export function updateSettings(newSettings: Partial<SystemSettings>) {
 }
 
 /**
- * Reset Queue for a new day
+ * Delete a specific ticket by ID
+ */
+export function deleteTicket(ticketId: string): void {
+  const state = getInitialStoreState();
+  const updatedTickets = state.tickets.filter(t => t.id !== ticketId);
+  const updatedCounters = state.counters.map(c => {
+    if (c.currentTicketId === ticketId) {
+      return { ...c, currentTicketId: null };
+    }
+    return c;
+  });
+  saveStateToStorage({ tickets: updatedTickets, counters: updatedCounters });
+}
+
+/**
+ * Reset Queue for a new day / Hapus seluruh data antrean
  */
 export function resetDailyQueue(): void {
   localStorage.setItem(INITIALIZED_KEY, 'true');

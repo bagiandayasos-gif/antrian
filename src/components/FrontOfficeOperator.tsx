@@ -13,7 +13,8 @@ import {
   ChevronRight,
   User,
   Coffee,
-  CircleDot
+  CircleDot,
+  Trash2
 } from 'lucide-react';
 import { CounterId, CounterState, QueueTicket } from '../types';
 import { 
@@ -24,6 +25,7 @@ import {
   skipTicket, 
   updateCounterOfficer,
   resetDailyQueue,
+  deleteTicket,
   subscribeToStore 
 } from '../utils/queueStore';
 import { announceTicketCall } from '../utils/audio';
@@ -456,11 +458,25 @@ export const FrontOfficeOperator: React.FC<FrontOfficeOperatorProps> = ({ soundE
                       <p className="text-[11px] text-slate-500 truncate max-w-[170px]">{ticket.purpose}</p>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-[10px] text-slate-400 block">Daftar</span>
-                      <span className="text-xs font-mono font-semibold text-slate-700">
-                        {new Date(ticket.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                    <div className="text-right shrink-0 flex items-center gap-2">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block">Daftar</span>
+                        <span className="text-xs font-mono font-semibold text-slate-700">
+                          {new Date(ticket.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Hapus tiket ${ticket.ticketNumber} (${ticket.visitorName})?`)) {
+                            deleteTicket(ticket.id);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                        title="Hapus Tiket Ini"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}

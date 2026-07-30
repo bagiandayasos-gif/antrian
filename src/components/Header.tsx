@@ -19,7 +19,8 @@ import {
   Check,
   Share2,
   Copy,
-  QrCode
+  QrCode,
+  Trash2
 } from 'lucide-react';
 import { SystemSettings } from '../types';
 import { playChime } from '../utils/audio';
@@ -51,8 +52,11 @@ export const Header: React.FC<HeaderProps> = ({
   const [isStandalone, setIsStandalone] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Dynamic public URL derived directly from current active host
+  const publicUrl = typeof window !== 'undefined' ? (window.location.origin + window.location.pathname) : '';
+
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(publicUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 3000);
   };
@@ -194,14 +198,14 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )}
 
-            {/* Reset Antrean Button */}
+            {/* Reset / Hapus Data Button */}
             <button
               onClick={() => setShowResetConfirm(true)}
-              className="px-3 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 active:scale-95"
-              title="Reset / Kosongkan Seluruh Data Antrean Hari Ini"
+              className="px-3.5 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 active:scale-95 shadow-sm"
+              title="Hapus / Kosongkan Seluruh Data Antrean Hari Ini"
             >
-              <RotateCcw className="w-4 h-4 text-rose-400" />
-              <span className="hidden sm:inline">Reset Antrean</span>
+              <Trash2 className="w-4 h-4 text-rose-400 shrink-0" />
+              <span className="hidden sm:inline">Hapus Data Antrean</span>
             </button>
 
             {/* Open Display in New Window */}
@@ -223,16 +227,16 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl text-left space-y-4">
               <div className="flex items-center gap-3 text-rose-400">
                 <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center shrink-0">
-                  <RotateCcw className="w-5 h-5 text-rose-400" />
+                  <Trash2 className="w-5 h-5 text-rose-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Reset Antrean Hari Ini?</h3>
-                  <p className="text-xs text-slate-400">Konfirmasi Penghapusan Seluruh Tiket</p>
+                  <h3 className="text-base font-bold text-white">Hapus Seluruh Data Antrean?</h3>
+                  <p className="text-xs text-slate-400">Konfirmasi Penghapusan Seluruh Tiket Hari Ini</p>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
-                Tindakan ini akan <strong>mengosongkan seluruh daftar antrean</strong> (baik antrean menunggu maupun yang telah selesai) dan mengembalikan nomor panggilan loket ke posisi awal untuk hari baru.
+                Tindakan ini akan <strong>menghapus &amp; mengosongkan seluruh daftar data antrean</strong> (baik antrean menunggu maupun yang telah selesai dilayani) serta mengembalikan nomor panggilan loket ke posisi awal untuk hari baru.
               </p>
 
               <div className="flex items-center justify-end gap-2.5 pt-2">
@@ -246,13 +250,13 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => {
                     resetDailyQueue();
                     setShowResetConfirm(false);
-                    setResetNotification('Antrean berhasil direset total!');
+                    setResetNotification('Seluruh data antrean berhasil dihapus!');
                     setTimeout(() => setResetNotification(null), 4000);
                   }}
                   className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-600/30 transition-all flex items-center gap-1.5"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Ya, Reset Sekarang</span>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Ya, Hapus Data</span>
                 </button>
               </div>
             </div>
@@ -295,7 +299,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <input
                     type="text"
                     readOnly
-                    value={window.location.href}
+                    value={publicUrl}
                     className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-indigo-300 focus:outline-none select-all"
                   />
                   <button
@@ -310,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-3 pt-1">
                   <div className="bg-white p-1.5 rounded-lg shrink-0 shadow">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`} 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(publicUrl)}`} 
                       alt="QR Code Akses Aplikasi"
                       className="w-20 h-20" 
                     />
@@ -353,10 +357,18 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700/60 space-y-1.5">
                   <div className="font-bold text-indigo-400 flex items-center gap-2">
                     <Download className="w-4 h-4" />
-                    <span>Cara 3: Unduh File Mentah (ZIP / Source Code)</span>
+                    <span>Cara 3: Download Source Code &amp; Buat File .exe Installer (Electron)</span>
                   </div>
                   <p className="text-[11px] text-slate-300 leading-relaxed">
-                    Jika ingin menyimpan file aplikasi dalam format paket ZIP di komputer Anda: klik tombol <strong>Settings / Menu (tiga titik di AI Studio)</strong> di pojok kanan atas layar &gt; pilih <strong>"Export as ZIP"</strong> atau <strong>"Export to GitHub"</strong>.
+                    1. Klik menu <strong>tiga titik (⋮) / Settings</strong> di pojok kanan atas AI Studio &gt; pilih <strong>"Export as ZIP"</strong>.<br />
+                    2. Ekstrak folder ZIP di komputer Windows Anda.<br />
+                    3. Buka Terminal/CMD di folder tersebut dan jalankan command:<br />
+                    <code className="block bg-slate-950 p-2 rounded text-indigo-300 font-mono mt-1 text-[10px] border border-slate-800">
+                      npm install<br />
+                      npm run build<br />
+                      npx electron-builder --win
+                    </code>
+                    4. File installer <strong>Setup.exe</strong> akan otomatis terbentuk di folder <code className="text-amber-300">dist/</code> siap dibagikan!
                   </p>
                 </div>
               </div>
@@ -373,15 +385,21 @@ export const Header: React.FC<HeaderProps> = ({
                         setShowInstallGuide(false);
                       }
                     }}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95"
                   >
                     <Download className="w-4 h-4 text-emerald-200 animate-bounce" />
                     <span>Pasang Aplikasi Sekarang (1-Klik)</span>
                   </button>
                 ) : (
-                  <div className="text-[11px] text-slate-400 font-medium">
-                    Aplikasi siap dipasang via Browser / QR Code
-                  </div>
+                  <button
+                    onClick={() => {
+                      window.open(publicUrl, '_blank');
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Download className="w-4 h-4 text-emerald-200 animate-bounce" />
+                    <span>Buka Publik (Siap Instal App)</span>
+                  </button>
                 )}
 
                 <button
